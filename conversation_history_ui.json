@@ -1,0 +1,146 @@
+[
+  {
+    "role": "user",
+    "content": "what is jain university?"
+  },
+  {
+    "role": "assistant",
+    "content": "JAIN University, also known as JAIN (Deemed-to-be University), is an institution that offers various academic programs and is recognized for its accreditation and rankings. The university provides a comprehensive guide that includes information on its identity, history, academic schools, admissions, fees, scholarships, placements, research, and campus facilities [1]. For more details, you can visit their official website [4].",
+    "usage": {
+      "input": 490,
+      "output": 80
+    }
+  },
+  {
+    "role": "user",
+    "content": "what are their values?"
+  },
+  {
+    "role": "assistant",
+    "content": "I couldn't find this information in the provided documents.",
+    "usage": {
+      "input": 5,
+      "output": 11
+    }
+  },
+  {
+    "role": "user",
+    "content": "what are their values?"
+  },
+  {
+    "role": "assistant",
+    "content": "I couldn't find this information in the provided documents.",
+    "usage": {
+      "input": 5,
+      "output": 11
+    }
+  },
+  {
+    "role": "user",
+    "content": "what cources do they teach there?"
+  },
+  {
+    "role": "assistant",
+    "content": "I couldn't find this information in the provided documents.",
+    "usage": {
+      "input": 569,
+      "output": 11
+    }
+  },
+  {
+    "role": "user",
+    "content": "Placements, internships and career preparation"
+  },
+  {
+    "role": "assistant",
+    "content": "JAIN University describes a structured placement process that includes orientation, student data capture, matching students to relevant roles, recruitment training, employer selection rounds, and confirmation of offers. Their placement support pages mention aptitude preparation, group discussions, mock interviews, workshops, guest lectures, and alumni interaction [1][2].",
+    "usage": {
+      "input": 589,
+      "output": 62
+    }
+  },
+  {
+    "role": "user",
+    "content": "give me all the campuses and their locations"
+  },
+  {
+    "role": "assistant",
+    "content": "I couldn't find this information in the provided documents.",
+    "usage": {
+      "input": 591,
+      "output": 11
+    }
+  },
+  {
+    "role": "user",
+    "content": "give me all the campuses and their locations"
+  },
+  {
+    "role": "assistant",
+    "content": "I found relevant information in the documents, but the selected Local (Ollama) model could not be reached. Check the model/API configuration and try again.",
+    "usage": {
+      "input": 617,
+      "output": 32
+    }
+  },
+  {
+    "role": "user",
+    "content": "give me all the campuses and their locations"
+  },
+  {
+    "role": "assistant",
+    "content": "JAIN University operates across multiple locations, primarily in Bengaluru and a location in Kochi. The specific campuses and their facilities may vary, impacting travel time, accommodation, internship access, and the overall student experience [1].",
+    "usage": {
+      "input": 664,
+      "output": 45
+    }
+  },
+  {
+    "role": "user",
+    "content": "give the locations"
+  },
+  {
+    "role": "assistant",
+    "content": "JAIN University operates across multiple locations, primarily in Bengaluru and a location in Kochi. Here are some specific locations:\n\n1. **JAIN Global Campus**: Jakkasandra Post, Kanakapura Taluk, Ramanagara District, Bengaluru region - Engineering and Technology and selected research/technical facilities.\n2. **Jayanagar 9th Block**: Bengaluru - University administrative/admissions address and selected academic schools.\n3. **JC Road**: Bengaluru - School of Sciences listing.\n\nPlease verify your exact programme's teaching location as it may vary [1][2].",
+    "usage": {
+      "input": 729,
+      "output": 120
+    }
+  },
+  {
+    "role": "user",
+    "content": "summarize what jain is"
+  },
+  {
+    "role": "assistant",
+    "content": "JAIN University, also known as JAIN (Deemed-to-be University), is an institution that offers various academic programs and is recognized for its accreditation and rankings. The university provides a comprehensive guide covering its identity, history, academic schools, admissions, fees, scholarships, placements, research, and campus facilities [1][2].",
+    "usage": {
+      "input": 978,
+      "output": 66
+    }
+  },
+  {
+    "role": "user",
+    "content": "summarize what jain is"
+  },
+  {
+    "role": "assistant",
+    "content": "JAIN University, also known as JAIN (Deemed-to-be University), is an institution recognized for its accreditation and rankings. It offers a variety of academic programs and includes comprehensive information covering its identity, history, academic schools, admissions, fees, scholarships, placements, research, and campus facilities [1][2].",
+    "usage": {
+      "input": 1056,
+      "output": 64
+    }
+  },
+  {
+    "role": "user",
+    "content": "summarize what jain is"
+  },
+  {
+    "role": "assistant",
+    "content": "JAIN University, also known as JAIN (Deemed-to-be University), is an institution recognized for its accreditation and rankings. It offers a variety of academic programs and includes comprehensive information covering its identity, history, academic schools, admissions, fees, scholarships, placements, research, and campus facilities [1][2].",
+    "usage": {
+      "input": 1132,
+      "output": 64
+    }
+  }
+]
