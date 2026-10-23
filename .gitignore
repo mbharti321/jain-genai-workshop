@@ -1,0 +1,40 @@
+
+# Python bytecode and test/lint caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Local IDE and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# RAG runtime data
+/chroma_db/
+/data/uploads/*
+!/data/uploads/.gitkeep
+/results/*
+!/results/.gitkeep
+
+# Build/package artifacts
+build/
+dist/
+*.egg-info/

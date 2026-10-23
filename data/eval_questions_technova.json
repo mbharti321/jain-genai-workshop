@@ -1,0 +1,9 @@
+[
+  {"type": "answerable", "question": "How many sick leave days do employees get?", "expected_keywords": ["8"]},
+  {"type": "answerable", "question": "How many days per week can I work from home?", "expected_keywords": ["2"]},
+  {"type": "answerable", "question": "What is the daily meal limit while travelling?", "expected_keywords": ["800"]},
+  {"type": "answerable", "question": "How quickly must I report a phishing email?", "expected_keywords": ["1 hour", "one hour"]},
+  {"type": "ambiguous", "question": "How many leaves do I get?"},
+  {"type": "unanswerable", "question": "What is the CEO's salary?"},
+  {"type": "unanswerable", "question": "Does TechNova offer stock options?"}
+]

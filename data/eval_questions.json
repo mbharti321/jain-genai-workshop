@@ -1,0 +1,14 @@
+[
+  {"type": "answerable", "question": "What is the minimum attendance required to sit for semester exams?", "expected_keywords": ["75%"]},
+  {"type": "answerable", "question": "What are the library opening hours?", "expected_keywords": ["8:00"]},
+  {"type": "answerable", "question": "How much is the library late fee for a book?", "expected_keywords": ["5 per day"]},
+  {"type": "answerable", "question": "How are internal and semester exam marks weighted?", "expected_keywords": ["40", "60"]},
+  {"type": "answerable", "question": "Can I take my smartwatch into the exam hall?", "expected_keywords": ["not allowed", "smartwatch"]},
+  {"type": "answerable", "question": "Who qualifies for the merit scholarship?", "expected_keywords": ["9.0"]},
+  {"type": "answerable", "question": "What CGPA do I need to attend campus placement drives?", "expected_keywords": ["6.5"]},
+  {"type": "ambiguous", "question": "What is the fee?"},
+  {"type": "ambiguous", "question": "What is the deadline?"},
+  {"type": "unanswerable", "question": "Who is the current vice chancellor?"},
+  {"type": "unanswerable", "question": "What is on the cafeteria menu today?"},
+  {"type": "unanswerable", "question": "What is the capital of Australia?"}
+]

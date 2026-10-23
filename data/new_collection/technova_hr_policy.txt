@@ -1,0 +1,16 @@
+TECHNOVA EMPLOYEE POLICY HANDBOOK (fictional document for workshop use)
+
+1. Leave Policy
+Employees receive 18 days of paid leave and 8 days of sick leave per calendar year. Up to 10 unused paid leave days can be carried forward to the next year. Maternity leave is 26 weeks and paternity leave is 10 days.
+
+2. Remote Work
+TechNova follows a hybrid model: 3 days in the office and 2 days working from home each week. Office days are Monday, Tuesday and Thursday. Fully remote work needs written approval from a director. A one-time home office allowance of Rs. 15,000 is provided after probation.
+
+3. Expense Reimbursement
+Expenses must be submitted through the TechPay portal within 30 days of the expense. Meals while travelling are reimbursed up to Rs. 800 per day. Economy class must be booked for flights shorter than 6 hours. Receipts are mandatory for any claim above Rs. 200.
+
+4. Information Security
+Always connect to the company VPN when working remotely. Passwords must be at least 12 characters long. Report suspected phishing emails to the security team within 1 hour. Customer data must never be stored on personal devices.
+
+5. Employment Terms
+The probation period is 6 months. The notice period after confirmation is 60 days.
