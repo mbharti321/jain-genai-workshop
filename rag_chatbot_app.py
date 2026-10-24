@@ -21,9 +21,11 @@ import numpy as np
 import streamlit as st
 from dotenv import load_dotenv
 
-load_dotenv()
-
 BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(BASE_DIR / ".env", override=True)
+
+from src import config
+
 DOCS_DIR = BASE_DIR / "data" / "sample_docs"
 CHROMA_DIR = BASE_DIR / "chroma_db_teaching"
 HISTORY_FILE = BASE_DIR / "conversation_history_ui.json"
@@ -246,7 +248,7 @@ def call_llm(
     model: str,
     temperature: float,
     max_tokens: int,
-) -> str:
+) -> tuple[str, dict[str, int] | None]:
     """Call the selected provider with explicit, student-visible controls."""
     if provider == "Local (Ollama)":
         import ollama
@@ -256,39 +258,111 @@ def call_llm(
             messages=[{"role": "user", "content": prompt}],
             options={"temperature": temperature, "num_predict": max_tokens},
         )
-        return response["message"]["content"]
+        input_tokens = response.get("prompt_eval_count")
+        output_tokens = response.get("eval_count")
+        usage = (
+            {"input": input_tokens, "output": output_tokens}
+            if input_tokens is not None and output_tokens is not None
+            else None
+        )
+        return response["message"]["content"], usage
     if provider == "OpenAI":
         from openai import OpenAI
 
-        response = OpenAI().chat.completions.create(
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            raise RuntimeError("OPENAI_API_KEY is missing. Add it to your .env file.")
+
+        response = OpenAI(api_key=api_key).chat.completions.create(
             model=model,
             messages=[{"role": "user", "content": prompt}],
             temperature=temperature,
             max_tokens=max_tokens,
         )
-        return response.choices[0].message.content or ""
+        usage = None
+        if response.usage is not None:
+            usage = {
+                "input": response.usage.prompt_tokens,
+                "output": response.usage.completion_tokens,
+            }
+        return response.choices[0].message.content or "", usage
     if provider == "Gemini":
         import google.generativeai as genai
 
-        genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            raise RuntimeError("GEMINI_API_KEY is missing. Add it to your .env file.")
+        genai.configure(api_key=api_key)
         response = genai.GenerativeModel(model).generate_content(
             prompt,
             generation_config={"temperature": temperature, "max_output_tokens": max_tokens},
         )
-        return response.text
+        usage_metadata = getattr(response, "usage_metadata", None)
+        usage = None
+        if usage_metadata is not None:
+            input_tokens = usage_metadata.prompt_token_count
+            output_tokens = usage_metadata.candidates_token_count
+            if input_tokens is not None and output_tokens is not None:
+                usage = {"input": input_tokens, "output": output_tokens}
+        return response.text, usage
     raise ValueError("Unknown provider")
+
+
+def token_usage(prompt: str, answer: str, reported_usage: dict[str, int] | None) -> dict[str, Any]:
+    """Use provider counts when available; otherwise label tokenizer counts as estimates."""
+    if reported_usage is not None:
+        return {**reported_usage, "source": "provider"}
+    return {
+        "input": count_tokens(prompt),
+        "output": count_tokens(answer),
+        "source": "estimated",
+    }
+
+
+def estimate_cost(
+    usage: dict[str, Any],
+    provider: str,
+    pricing: dict[str, float] | None,
+) -> float | None:
+    """Estimate API cost from configured per-million-token rates."""
+    if usage["source"] == "not called" or provider == "Local (Ollama)":
+        return 0.0
+    if usage["source"] == "unavailable" or pricing is None:
+        return None
+    return (
+        usage["input"] * pricing["input"] + usage["output"] * pricing["output"]
+    ) / 1_000_000
+
+
+def cost_label(usage: dict[str, Any]) -> str:
+    """Explain why a turn has a cost estimate, no charge, or no known amount."""
+    if usage.get("provider") == "Local (Ollama)":
+        return "local (no API charge)"
+    if usage.get("source") == "not called":
+        return "not applicable (LLM not called)"
+    if usage.get("source") == "unavailable":
+        return "unavailable (LLM request failed)"
+    cost = usage.get("cost_usd")
+    if cost is None:
+        return "unavailable (model rate not configured)"
+    return f"${cost:.6f}"
+
+
+def safe_error_message(error: Exception) -> str:
+    """Keep actionable provider errors while removing any credential text."""
+    detail = f"{type(error).__name__}: {error}"
+    for variable in ("OPENAI_API_KEY", "GEMINI_API_KEY"):
+        secret = os.getenv(variable)
+        if secret:
+            detail = detail.replace(secret, "[redacted API key]")
+    detail = re.sub(r"\bsk-[A-Za-z0-9_-]{8,}\b", "[redacted API key]", detail)
+    detail = re.sub(r"\bAIza[A-Za-z0-9_-]{20,}\b", "[redacted API key]", detail)
+    return detail[:1000]
 
 
 def init_state() -> None:
     if "messages" not in st.session_state:
         st.session_state.messages = load_history()
-    if "total_tokens" not in st.session_state:
-        # Reconstruct the counter after a browser refresh from persisted assistant usage.
-        st.session_state.total_tokens = sum(
-            message.get("usage", {}).get("input", 0) + message.get("usage", {}).get("output", 0)
-            for message in st.session_state.messages
-            if message.get("role") == "assistant"
-        )
 
 
 def main() -> None:
@@ -304,8 +378,8 @@ def main() -> None:
         provider = st.selectbox("LLM provider", providers, index=providers.index("OpenAI"))
         default_models = {
             "Local (Ollama)": os.getenv("OLLAMA_CHAT_MODEL", "llama3.2"),
-            "OpenAI": os.getenv("OPENAI_CHAT_MODEL", "gpt-4o-mini"),
-            "Gemini": os.getenv("GEMINI_CHAT_MODEL", "gemini-2.0-flash"),
+            "OpenAI": os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
+            "Gemini": os.getenv("GEMINI_CHAT_MODEL", "gemini-2.5-flash"),
         }
         model = st.text_input("Model", value=default_models[provider])
         if provider == "Local (Ollama)":
@@ -325,7 +399,49 @@ def main() -> None:
         st.metric("Indexed chunks", chunk_count)
         st.caption(f"{file_count} files → {record_count} records → hybrid chunks → ChromaDB cosine search")
         st.caption(f"Embedding model: {EMBEDDING_MODEL}")
-        st.metric("Conversation input tokens", st.session_state.total_tokens)
+        assistant_messages = [
+            message for message in st.session_state.messages
+            if message.get("role") == "assistant" and message.get("usage")
+        ]
+        conversation_tokens = sum(
+            message["usage"].get("input", 0) + message["usage"].get("output", 0)
+            for message in assistant_messages
+        )
+        conversation_costs = [
+            message["usage"]["cost_usd"]
+            for message in assistant_messages
+            if message["usage"].get("cost_usd") is not None
+        ]
+        unknown_cost_turns = sum(
+            message["usage"].get("cost_usd") is None for message in assistant_messages
+        )
+        st.metric("Conversation tokens", f"{conversation_tokens:,}")
+        if unknown_cost_turns:
+            cost_display = (
+                "Rates needed" if not conversation_costs else f"${sum(conversation_costs):.6f}"
+            )
+            st.metric("Estimated API cost", cost_display)
+            st.caption(f"Cost is unavailable for {unknown_cost_turns} turn(s); configure model rates in .env.")
+        else:
+            st.metric("Estimated API cost", f"${sum(conversation_costs):.6f}")
+        try:
+            pricing = config.model_pricing(model)
+        except ValueError as error:
+            pricing = None
+            st.error(str(error))
+        if provider == "Local (Ollama)":
+            st.caption("Local Ollama usage is shown, but no API cost is charged.")
+        elif pricing:
+            st.caption(
+                "Rates are estimates per 1M tokens: "
+                f"${pricing['input']:g} input / ${pricing['output']:g} output. "
+                "Confirm current pricing with your provider."
+            )
+        else:
+            st.caption(
+                "No rate configured for this model. Set both "
+                "LLM_*_PRICE_PER_MILLION_USD values in .env."
+            )
         if len(st.session_state.messages) >= 10:
             st.info("Five conversations reached. Compact history to reduce prompt tokens.")
         if st.button("Compact conversation history"):
@@ -334,15 +450,21 @@ def main() -> None:
             st.rerun()
         if st.button("Clear conversation"):
             st.session_state.messages = []
-            st.session_state.total_tokens = 0
             save_history([])
             st.rerun()
 
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
+            if message.get("error_detail"):
+                st.error(f"LLM request failed: {message['error_detail']}")
             if message.get("usage"):
-                st.caption(f"Input tokens: {message['usage']['input']} · Output tokens: {message['usage']['output']}")
+                usage = message["usage"]
+                st.caption(
+                    f"Input: {usage['input']:,} tokens · Output: {usage['output']:,} tokens · "
+                    f"Total: {usage['input'] + usage['output']:,} ({usage.get('source', 'unknown')}) · "
+                    f"Estimated cost: {cost_label(usage)}"
+                )
 
     question = st.chat_input("Ask a question about the provided documents")
     if not question:
@@ -358,13 +480,16 @@ def main() -> None:
             if not hits:
                 response_status.update(label="No matching document evidence found", state="complete")
                 answer = FALLBACK
-                usage = {"input": count_tokens(question), "output": count_tokens(answer)}
+                usage = {"input": 0, "output": 0, "source": "not called"}
                 sources = []
             else:
                 prompt = build_prompt(question, hits, st.session_state.messages)
                 response_status.write(f"Found {len(hits)} relevant chunks. Sending grounded context to {model}...")
+                error_detail = None
                 try:
-                    answer = call_llm(prompt, provider, model, temperature, int(max_tokens))
+                    answer, reported_usage = call_llm(
+                        prompt, provider, model, temperature, int(max_tokens)
+                    )
                     response_status.update(label="Response received", state="complete")
                 except Exception as error:
                     # Never display a framework traceback to students, and never invent an answer
@@ -374,17 +499,31 @@ def main() -> None:
                         f"model could not be reached. Check the model/API configuration and try again."
                     )
                     response_status.update(label="LLM request failed", state="error")
-                    st.error(f"{type(error).__name__}: {error}")
-                usage = {"input": count_tokens(prompt), "output": count_tokens(answer)}
+                    error_detail = safe_error_message(error)
+                    usage = {"input": 0, "output": 0, "source": "unavailable"}
+                else:
+                    usage = token_usage(prompt, answer, reported_usage)
                 sources = hits
+            if not hits:
+                error_detail = None
+            usage["provider"] = provider
+            usage["model"] = model
+            usage["cost_usd"] = estimate_cost(usage, provider, pricing)
 
-    st.session_state.total_tokens += usage["input"] + usage["output"]
     assistant_message = {"role": "assistant", "content": answer, "usage": usage}
+    if error_detail:
+        assistant_message["error_detail"] = error_detail
     st.session_state.messages.extend([{"role": "user", "content": question}, assistant_message])
     save_history(st.session_state.messages)
     with st.chat_message("assistant"):
         st.markdown(answer)
-        st.caption(f"Input tokens: {usage['input']} · Output tokens: {usage['output']} · Total this turn: {usage['input'] + usage['output']}")
+        if error_detail:
+            st.error(f"LLM request failed: {error_detail}")
+        st.caption(
+            f"Input: {usage['input']:,} tokens · Output: {usage['output']:,} tokens · "
+            f"Total this turn: {usage['input'] + usage['output']:,} ({usage['source']}) · "
+            f"Estimated API cost: {cost_label(usage)}"
+        )
         if sources:
             with st.expander("Sources used"):
                 for index, source in enumerate(sources, 1):

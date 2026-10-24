@@ -1,11 +1,19 @@
 """Session 2 - Call an LLM through an API (Anthropic or any OpenAI-compatible API)."""
 import os
+from typing import Optional
 
 from . import config
 
 
 def generate(user_prompt: str, system_prompt: str = "", max_tokens: int = 700,
              temperature: float = 0.2) -> str:
+    answer, _ = generate_with_usage(user_prompt, system_prompt, max_tokens, temperature)
+    return answer
+
+
+def generate_with_usage(user_prompt: str, system_prompt: str = "", max_tokens: int = 700,
+                        temperature: float = 0.2) -> tuple[str, Optional[dict[str, int]]]:
+    """Generate a response and return provider-reported token usage when available."""
     if config.LLM_PROVIDER == "anthropic":
         return _anthropic(user_prompt, system_prompt, max_tokens, temperature)
     if config.LLM_PROVIDER == "openai":
@@ -13,7 +21,7 @@ def generate(user_prompt: str, system_prompt: str = "", max_tokens: int = 700,
     raise RuntimeError(f"Unknown LLM_PROVIDER '{config.LLM_PROVIDER}'. Use 'anthropic' or 'openai'.")
 
 
-def _anthropic(user_prompt, system_prompt, max_tokens, temperature) -> str:
+def _anthropic(user_prompt, system_prompt, max_tokens, temperature) -> tuple[str, dict[str, int]]:
     if not os.getenv("ANTHROPIC_API_KEY"):
         raise RuntimeError("ANTHROPIC_API_KEY is missing. Add it to your .env file.")
     import anthropic
@@ -26,10 +34,15 @@ def _anthropic(user_prompt, system_prompt, max_tokens, temperature) -> str:
         system=system_prompt or "You are a helpful assistant.",
         messages=[{"role": "user", "content": user_prompt}],
     )
-    return "".join(b.text for b in resp.content if b.type == "text").strip()
+    answer = "".join(b.text for b in resp.content if b.type == "text").strip()
+    usage = {
+        "input": resp.usage.input_tokens,
+        "output": resp.usage.output_tokens,
+    }
+    return answer, usage
 
 
-def _openai(user_prompt, system_prompt, max_tokens, temperature) -> str:
+def _openai(user_prompt, system_prompt, max_tokens, temperature) -> tuple[str, Optional[dict[str, int]]]:
     if not os.getenv("OPENAI_API_KEY"):
         raise RuntimeError("OPENAI_API_KEY is missing. Add it to your .env file.")
     from openai import OpenAI
@@ -45,4 +58,11 @@ def _openai(user_prompt, system_prompt, max_tokens, temperature) -> str:
         max_tokens=max_tokens,
         temperature=temperature,
     )
-    return (resp.choices[0].message.content or "").strip()
+    answer = (resp.choices[0].message.content or "").strip()
+    usage = None
+    if resp.usage is not None:
+        usage = {
+            "input": resp.usage.prompt_tokens,
+            "output": resp.usage.completion_tokens,
+        }
+    return answer, usage

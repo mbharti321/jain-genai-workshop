@@ -55,6 +55,8 @@ streamlit run app.py
 In the app: **Load samples** → ask questions → open the **[1] [2]** source expanders.
 Test covered questions ("How many books can I borrow?") and uncovered ones ("Who is the VC?").
 
+The standalone teaching UI is also available with `streamlit run rag_chatbot_app.py`; it displays token usage and estimated API cost for each answer and for the conversation. In its provider selector, **OpenAI** uses `OPENAI_API_KEY` and `OPENAI_MODEL`, while **Gemini** uses `GEMINI_API_KEY` and `GEMINI_CHAT_MODEL`.
+
 ## Session 3 - Improve and evaluate
 
 ```bash
@@ -75,11 +77,13 @@ In the app, upload `data/new_collection/technova_hr_policy.txt` and tune chunk s
 | Keyword vs semantic retrieval | `src/retriever.py` |
 | Prompt + retrieved data | `src/prompts.py` |
 | Fallback / hallucination guard | `src/rag_pipeline.py` (`ask`) |
-| Latency numbers | shown under each answer in the UI |
+| Latency, token usage, and estimated API cost | shown under each answer and in the UI sidebar |
+
+Both Streamlit UIs use provider-reported input/output token usage when available and label tokenizer-based counts as estimates otherwise. Cost is an estimate based on the model's configured USD-per-million-token rates; verify current pricing with your provider. For custom or compatible models, set both `LLM_INPUT_PRICE_PER_MILLION_USD` and `LLM_OUTPUT_PRICE_PER_MILLION_USD` in `.env`.
 
 ## Using other LLM providers
 
-Set `LLM_PROVIDER=openai` and `OPENAI_BASE_URL` for any OpenAI-compatible API (Groq, Gemini's compat endpoint, local Ollama at `http://localhost:11434/v1`).
+For the standalone teaching UI, configure OpenAI and Gemini independently using the provider-specific keys and model variables shown in `.env.example`. The separate `app.py` pipeline uses `LLM_PROVIDER` from `.env`; for an OpenAI-compatible service, set `LLM_PROVIDER=openai` and configure `OPENAI_BASE_URL` as needed.
 
 ## Optional extensions
 

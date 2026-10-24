@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 
 from . import config
 from .chunking import chunk_text
-from .llm import generate
+from .llm import generate, generate_with_usage
 from .loader import load_file
 from .prompts import FALLBACK, build_rag_prompt
 from .retriever import search
@@ -61,13 +61,33 @@ class RAGAssistant:
         best = max((h["score"] for h in hits), default=0.0)
         if not hits or (mode != "keyword" and best < min_score):
             return {"answer": FALLBACK, "sources": hits, "grounded": False,
-                    "best_score": best, "retrieval_s": t_retrieve, "generation_s": 0.0}
+                    "best_score": best, "retrieval_s": t_retrieve, "generation_s": 0.0,
+                    "usage": {"input": 0, "output": 0, "source": "not called"}}
 
         system, user = build_rag_prompt(question, hits, history)
         t1 = time.time()
-        answer = generate(user, system_prompt=system)
+        answer, usage = generate_with_usage(user, system_prompt=system)
         t_generate = time.time() - t1
+
+        if usage is None:
+            try:
+                import tiktoken
+
+                tokenizer = tiktoken.get_encoding("cl100k_base")
+                input_tokens = len(tokenizer.encode(f"{system}\n\n{user}"))
+                output_tokens = len(tokenizer.encode(answer))
+            except ImportError:
+                input_tokens = max(1, round(len(f"{system}\n\n{user}") / 4))
+                output_tokens = max(1, round(len(answer) / 4))
+            usage = {
+                "input": input_tokens,
+                "output": output_tokens,
+                "source": "estimated",
+            }
+        else:
+            usage["source"] = "provider"
 
         grounded = FALLBACK.lower() not in answer.lower()
         return {"answer": answer, "sources": hits, "grounded": grounded,
-                "best_score": best, "retrieval_s": t_retrieve, "generation_s": t_generate}
+                "best_score": best, "retrieval_s": t_retrieve, "generation_s": t_generate,
+                "usage": usage}

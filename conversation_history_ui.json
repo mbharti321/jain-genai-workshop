@@ -142,5 +142,133 @@
       "input": 1132,
       "output": 64
     }
+  },
+  {
+    "role": "user",
+    "content": "what  else can you tell me"
+  },
+  {
+    "role": "assistant",
+    "content": "I found relevant information in the documents, but the selected OpenAI model could not be reached. Check the model/API configuration and try again.",
+    "usage": {
+      "input": 0,
+      "output": 0,
+      "source": "unavailable",
+      "provider": "OpenAI",
+      "model": "gpt-4o-mini",
+      "cost_usd": null
+    }
+  },
+  {
+    "role": "user",
+    "content": "what else can you tell me\n"
+  },
+  {
+    "role": "assistant",
+    "content": "I found relevant information in the documents, but the selected OpenAI model could not be reached. Check the model/API configuration and try again.",
+    "usage": {
+      "input": 0,
+      "output": 0,
+      "source": "unavailable",
+      "provider": "OpenAI",
+      "model": "gpt-4o-mini",
+      "cost_usd": null
+    }
+  },
+  {
+    "role": "user",
+    "content": "what else can you tell me"
+  },
+  {
+    "role": "assistant",
+    "content": "I found relevant information in the documents, but the selected OpenAI model could not be reached. Check the model/API configuration and try again.",
+    "usage": {
+      "input": 0,
+      "output": 0,
+      "source": "unavailable",
+      "provider": "OpenAI",
+      "model": "gpt-4o-mini",
+      "cost_usd": null
+    }
+  },
+  {
+    "role": "user",
+    "content": "what else can you tell me"
+  },
+  {
+    "role": "assistant",
+    "content": "I found relevant information in the documents, but the selected Gemini model could not be reached. Check the model/API configuration and try again.",
+    "usage": {
+      "input": 0,
+      "output": 0,
+      "source": "unavailable",
+      "provider": "Gemini",
+      "model": "gemini-2.0-flash",
+      "cost_usd": null
+    }
+  },
+  {
+    "role": "user",
+    "content": "what else can you tell me?"
+  },
+  {
+    "role": "assistant",
+    "content": "I found relevant information in the documents, but the selected OpenAI model could not be reached. Check the model/API configuration and try again.",
+    "usage": {
+      "input": 0,
+      "output": 0,
+      "source": "unavailable",
+      "provider": "OpenAI",
+      "model": "gemini-2.5-flash",
+      "cost_usd": null
+    }
+  },
+  {
+    "role": "user",
+    "content": "hi"
+  },
+  {
+    "role": "assistant",
+    "content": "I couldn't find this information in the provided documents.",
+    "usage": {
+      "input": 0,
+      "output": 0,
+      "source": "not called",
+      "provider": "OpenAI",
+      "model": "gemini-2.5-flash",
+      "cost_usd": 0.0
+    }
+  },
+  {
+    "role": "user",
+    "content": "what else can you tell me about jain?"
+  },
+  {
+    "role": "assistant",
+    "content": "I found relevant information in the documents, but the selected OpenAI model could not be reached. Check the model/API configuration and try again.",
+    "usage": {
+      "input": 0,
+      "output": 0,
+      "source": "unavailable",
+      "provider": "OpenAI",
+      "model": "gemini-2.5-flash",
+      "cost_usd": null
+    }
+  },
+  {
+    "role": "user",
+    "content": "what else can you tell me about jain?"
+  },
+  {
+    "role": "assistant",
+    "content": "JAIN University, also known as JAIN (Deemed-to-be University), offers a variety of academic programs and is recognized for its accreditation and rankings. The university provides comprehensive information covering its identity, history, academic schools, admissions, fees, scholarships, placements, research, and campus facilities. Additionally, it emphasizes the importance of verifying course-specific approvals, curriculum currency, faculty availability, lab access, and internship quality. Students are encouraged to seek recent feedback from current students and graduates regarding their courses and campuses [1][2].",
+    "usage": {
+      "input": 1474,
+      "output": 106,
+      "source": "provider",
+      "provider": "OpenAI",
+      "model": "gpt-4o-mini",
+      "cost_usd": 0.0002847
+    }
   }
 ]
